@@ -1,0 +1,28 @@
+---
+- hosts: ec2
+  become: yes
+  tasks:
+    - name: Update apt and install Docker
+      apt:
+        update_cache: yes
+        name: docker.io
+        state: present
+
+    - name: Add user to the docker group
+      user:
+        name: "{{ ansible_user }}"
+        groups: docker
+        append: yes
+
+    - name: Pull the Docker image from Docker Hub
+      docker_image:
+        name: sanjaykshebbar/asi-insurance-app:latest
+        source: pull
+
+    - name: Run the Docker container
+      docker_container:
+        name: asi-insurance-container
+        image: sanjaykshebbar/asi-insurance-app:latest
+        ports:
+          - "80:80"
+        state: started
